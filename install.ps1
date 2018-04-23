@@ -15,17 +15,21 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
 
+$tempDirectory = Join-Path $env:TEMP "/DockerToolboxVMWareInstaller/"
+if (![System.IO.Directory]::Exists($tempDirectory)) {
+    New-Item $tempDirectory -ItemType Directory | Out-Null
+}
 # Install DockerToolbox
 $dockerToolboxRoot = Join-Path $env:programfiles "Docker Toolbox\"
 if (![System.IO.File]::Exists((Join-Path $dockerToolboxRoot "docker-machine.exe"))) {
-    $toolboxTempPath = "$PSScriptRoot/tmp/DockerToolbox.exe";
+    $toolboxTempPath = Join-Path $tempDirectory "DockerToolbox.exe";
     if (![System.IO.File]::Exists($toolboxTempPath)) {
         Write-Host "Downloading DockerToolbox.."
         Invoke-WebRequest -Uri "https://download.docker.com/win/stable/DockerToolbox.exe" -OutFile $toolboxTempPath
     }
 
     Write-Host "Installing DockerToolbox"
-    ./DockerToolbox.exe /COMPONENTS="Docker,DockerMachine"
+    & $toolboxTempPath /COMPONENTS="Docker,DockerMachine"
 }
 else {
     Write-Host "DockerToolbox seems to be already installed."
@@ -33,9 +37,10 @@ else {
 
 # Get Docker VMWare Driver
 $driverFile = "docker-machine-driver-vmwareworkstation.exe"
+
 if (![System.IO.File]::Exists((Join-Path $dockerToolboxRoot $driverFile))) {
     
-    $dockerMachineVmwarePath = "$PSScriptRoot/tmp/docker-machine-driver-vmwareworkstation.exe";
+    $dockerMachineVmwarePath = Join-Path $tempDirectory $driverFile;
     if (![System.IO.File]::Exists($dockerMachineVmwarePath)) {
         $repo = "pecigonzalo/docker-machine-vmwareworkstation"
         $releases = "https://api.github.com/repos/$repo/releases"
