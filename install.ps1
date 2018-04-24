@@ -15,10 +15,12 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
 
+# Create temporary directory
 $tempDirectory = Join-Path $env:TEMP "/DockerToolboxVMWareInstaller/"
 if (![System.IO.Directory]::Exists($tempDirectory)) {
     New-Item $tempDirectory -ItemType Directory | Out-Null
 }
+
 # Install DockerToolbox
 $dockerToolboxRoot = Join-Path $env:programfiles "Docker Toolbox\"
 if (![System.IO.File]::Exists((Join-Path $dockerToolboxRoot "docker-machine.exe"))) {
@@ -28,8 +30,10 @@ if (![System.IO.File]::Exists((Join-Path $dockerToolboxRoot "docker-machine.exe"
         Invoke-WebRequest -Uri "https://download.docker.com/win/stable/DockerToolbox.exe" -OutFile $toolboxTempPath
     }
 
-    Write-Host "Installing DockerToolbox"
-    & $toolboxTempPath /COMPONENTS="Docker,DockerMachine"
+    Write-Host "Installing DockerToolbox with Machine and Compose"
+    # InnoSetup http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
+    $Arguments = @( "/COMPONENTS=Docker,DockerMachine,DockerCompose", "/SILENT")
+    Start-Process -FilePath $toolboxTempPath -ArgumentList $Arguments -Wait
 }
 else {
     Write-Host "DockerToolbox seems to be already installed."
