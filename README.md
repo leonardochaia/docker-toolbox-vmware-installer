@@ -1,4 +1,11 @@
 # VMWare DockerToolbox PowerShell Installer
+
+## REMARKS: You can run VMWare and VirtualBox at the same time without issues
+I've started this repo since I was not aware of the below fact.
+I've switched to VirtualBox for my docker-machines since then.
+It has official docker support.
+
+
 This script aims to help in the installation of the VMWare Driver pecigonzalo/docker-machine-vmwareworkstation
 for Docker Machine.
 
